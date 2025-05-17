@@ -131,6 +131,22 @@ plugin.on('ui.message', async (payload) => {
  */
 plugin.on('device.status', (devices) => {
     logger.info('Device status changed:', devices)
+    for (let device of devices) {
+        logger.info('Device status:', device)
+        if (device.status === 'connected') {
+            logger.info('setDeviceConfig')
+            plugin.setDeviceConfig(device.serialNumber, {
+                sleepTime: 1000,
+                brightness: 100,
+                screenFlip: true,
+                vibrate: 'full',
+                autoSleep: true,
+                deviceName: 'Flexbar Plugin Test',
+                cdcMode: true,
+                color: 'space black'
+            })
+        }
+    }
 })
 
 /**
