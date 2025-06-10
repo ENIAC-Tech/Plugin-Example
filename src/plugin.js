@@ -236,6 +236,17 @@ plugin.on('plugin.data', (payload) => {
         key.title = `${keyData[key.uid].counter}`
         plugin.draw(serialNumber, key, 'draw')
     } 
+    else if (data.key.cid === "com.eniac.example.snackbarmsg") {
+        setImmediate(async () => {
+            plugin.showFlexbarSnackbarMessage(serialNumber, 'This is a info message', 'info', 'bell')
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            plugin.showFlexbarSnackbarMessage(serialNumber, 'This is a warning message', 'warning', 'warning')
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            plugin.showFlexbarSnackbarMessage(serialNumber, 'This is a error message', 'error', 'close')
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            plugin.showFlexbarSnackbarMessage(serialNumber, 'This is a success message', 'success', 'ok', 3000)
+        })
+    }
     else if (data.key.cid === 'com.eniac.example.wheel') {
       for (let key of feedbackKeys) {
           const bg = generateRainbowCanvas(key.width, `${data.state} ${data.delta || "0"}`)
