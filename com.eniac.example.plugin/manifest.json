@@ -214,6 +214,25 @@
                         },
                         "data": {
                         }
+                    },
+                    {
+                        "title": "$DynamicKey.Title",
+                        "tip": "$DynamicKey.Tip",
+                        "cid": "com.eniac.example.dynamickey",
+                        "config": {
+                            "keyType": "dynamic",
+                            "platform": [
+                                "windows",
+                                "mac"
+                            ]
+                        },
+                        "style": {
+                            "icon": "mdi mdi-contain",
+                            "width": 240
+                        },
+                        "data": {
+                            "subkeyNum": 0
+                        }
                     }
                 ]
             }
@@ -280,6 +299,10 @@
             "SnackBar": {
                 "Title": "Snackbar",
                 "Tip": "Display temporary notification messages"
+            },
+            "DynamicKey": {
+                "Title": "Dynamic Key",
+                "Tip": "Dynamic sub keys"
             }
         }
     }

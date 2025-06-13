@@ -203,6 +203,74 @@ plugin.on('plugin.alive', (payload) => {
         else if (key.cid === 'com.eniac.example.apitest') {
             feedbackKeys.push(key)
         }
+        else if (key.cid === 'com.eniac.example.dynamickey') {
+            setImmediate(async () => {
+                plugin._call("dynamic-plugin", {
+                    cmd: 'clear',
+                    serialNumber,
+                    key
+                })
+                await new Promise(resolve => setTimeout(resolve, 100))
+                for (let i = 0; i < 5; i++) {
+                    plugin._call("dynamic-plugin", {
+                        cmd: 'add',
+                        serialNumber,
+                        type: 'base64',
+                        key: key,
+                        id: i,
+                        width: 200,
+                        base64: generateRainbowCanvas(200, `${i}`),
+                        data: {
+                            name: `Key ${i}`,
+                        }
+                    })
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                plugin._call("dynamic-plugin", {
+                    cmd: 'remove',
+                    serialNumber,
+                    key,
+                    id: 2
+                })
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                plugin._call("dynamic-plugin", {
+                    cmd: 'remove',
+                    serialNumber,
+                    key,
+                    id: 2
+                })
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                plugin._call("dynamic-plugin", {
+                    cmd: 'set',
+                    serialNumber,
+                    key,
+                    data: {
+                        width: 1000
+                    }
+                })
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                plugin._call("dynamic-plugin", {
+                    cmd: 'move',
+                    serialNumber,
+                    key,
+                    id: 0,
+                    to: 2
+                })
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                plugin._call("dynamic-plugin", {
+                    cmd: 'draw',
+                    serialNumber,
+                    type: 'base64',
+                    key: key,
+                    id: 0,
+                    width: 200,
+                    base64: generateRainbowCanvas(200, `haha`),
+                    data: {
+                        name: `haha`,
+                    }
+                })
+            })
+        }
     }
 })
 
