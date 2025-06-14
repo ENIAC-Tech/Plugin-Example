@@ -302,7 +302,7 @@
             },
             "DynamicKey": {
                 "Title": "Dynamic Key",
-                "Tip": "Dynamic sub keys"
+                "Tip": "Dynamically adjustable key width, can contain multiple sub-keys"
             }
         }
     }

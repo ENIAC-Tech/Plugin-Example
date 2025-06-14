@@ -204,72 +204,7 @@ plugin.on('plugin.alive', (payload) => {
             feedbackKeys.push(key)
         }
         else if (key.cid === 'com.eniac.example.dynamickey') {
-            setImmediate(async () => {
-                plugin._call("dynamic-plugin", {
-                    cmd: 'clear',
-                    serialNumber,
-                    key
-                })
-                await new Promise(resolve => setTimeout(resolve, 100))
-                for (let i = 0; i < 5; i++) {
-                    plugin._call("dynamic-plugin", {
-                        cmd: 'add',
-                        serialNumber,
-                        type: 'base64',
-                        key: key,
-                        id: i,
-                        width: 200,
-                        base64: generateRainbowCanvas(200, `${i}`),
-                        data: {
-                            name: `Key ${i}`,
-                        }
-                    })
-                }
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                plugin._call("dynamic-plugin", {
-                    cmd: 'remove',
-                    serialNumber,
-                    key,
-                    id: 2
-                })
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                plugin._call("dynamic-plugin", {
-                    cmd: 'remove',
-                    serialNumber,
-                    key,
-                    id: 2
-                })
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                plugin._call("dynamic-plugin", {
-                    cmd: 'set',
-                    serialNumber,
-                    key,
-                    data: {
-                        width: 1000
-                    }
-                })
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                plugin._call("dynamic-plugin", {
-                    cmd: 'move',
-                    serialNumber,
-                    key,
-                    id: 0,
-                    to: 2
-                })
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                plugin._call("dynamic-plugin", {
-                    cmd: 'draw',
-                    serialNumber,
-                    type: 'base64',
-                    key: key,
-                    id: 0,
-                    width: 200,
-                    base64: generateRainbowCanvas(200, `haha`),
-                    data: {
-                        name: `haha`,
-                    }
-                })
-            })
+            dynamicKeyTest(serialNumber, key)
         }
     }
 })
@@ -399,3 +334,49 @@ function generateRainbowCanvas(width, value) {
     const dataUrl = canvas.toDataURL('image/png');
     return dataUrl;
   }
+
+/**
+ * @brief Test dynamic key API
+ * @param {string} serialNumber - The serial number of the device
+ * @param {object} key - The key object
+ */
+function dynamicKeyTest(serialNumber, key) {
+    setImmediate(async () => {
+        // delete all keys
+        plugin.dynamickey.clear(serialNumber, key)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // change width to 
+        plugin.dynamickey.setWidth(serialNumber, key, 500)
+
+        // add 5 keys
+        for (let i = 0; i < 5; i++) {
+            plugin.dynamickey.add(serialNumber, key, 0, 'base64', generateRainbowCanvas(200, `${i}`), 200, {name: `Key ${i}`})
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        
+        // delete index 2
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        plugin.dynamickey.remove(serialNumber, key, 2)
+
+        // // change width to 2000px
+        // await new Promise(resolve => setTimeout(resolve, 1000))
+        // plugin.dynamickey.setWidth(serialNumber, key, 2000)
+
+        // move index 0 to index 2
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        plugin.dynamickey.move(serialNumber, key, 0, 2)
+
+        // redraw index 1
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        plugin.dynamickey.draw(serialNumber, key, 1, 'base64', generateRainbowCanvas(200, `Hello`), 100)
+        // refresh is recommended to call after width of key is changed
+        await new Promise(resolve => setTimeout(resolve, 50))
+        plugin.dynamickey.refresh(serialNumber, key)
+
+        // update user data of index 0
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        plugin.dynamickey.update(serialNumber, key, 0, {name: 'User data Updated'})
+
+    })
+}
