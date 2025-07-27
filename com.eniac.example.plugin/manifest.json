@@ -166,6 +166,24 @@
                 }
             },
             {
+                "title": "$DirectDraw.Title",
+                "tip": "$DirectDraw.Tip",
+                "cid": "com.eniac.example.directdraw",
+                "config": {
+                    "keyType": "directDraw",
+                    "platform": [
+                        "windows",
+                        "mac"
+                    ]
+                },
+                "style": {
+                    "icon": "mdi mdi-pencil",
+                    "width": 240
+                },
+                "data": {
+                }
+            },
+            {
                 "title": "$Submenu.Title",
                 "cid": "com.eniac.navigation.page",
                 "style": {
@@ -303,6 +321,10 @@
             "DynamicKey": {
                 "Title": "Dynamic Key",
                 "Tip": "Dynamically adjustable key width, can contain multiple sub-keys"
+            },
+            "DirectDraw": {
+                "Title": "Direct Draw",
+                "Tip": "Direct draw with customizable content"
             }
         }
     }
