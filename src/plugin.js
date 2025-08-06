@@ -4,6 +4,7 @@ const { createCanvas } = require('@napi-rs/canvas');
 
 const keyData = {}
 var feedbackKeys = []
+var directDrawInterval = null
 
 async function testAPIs()
 {
@@ -180,6 +181,7 @@ plugin.on('plugin.alive', (payload) => {
     const data = payload.keys
     const serialNumber = payload.serialNumber
     feedbackKeys = []
+    clearInterval(directDrawInterval)
     for (let key of data) {
         keyData[key.uid] = key
         if (key.cid === 'com.eniac.example.counter') {
@@ -205,6 +207,21 @@ plugin.on('plugin.alive', (payload) => {
         }
         else if (key.cid === 'com.eniac.example.dynamickey') {
             dynamicKeyTest(serialNumber, key)
+        }
+        else if (key.cid === 'com.eniac.example.directdraw') {
+            let counter = 0
+            directDrawInterval = setInterval(async () => {
+                // Use counter to create animated rainbow offset
+                const offset = (counter * 0.01) % 1.0
+                const bg = generateRainbowCanvas(2170, `${counter++}`, offset)
+                try {
+                    await plugin.directDraw(serialNumber, key, bg, true)
+                } catch (error) {
+                    logger.error('directDrawInterval error:', error)
+                    clearInterval(directDrawInterval)
+                    directDrawInterval = null
+                }
+            }, 16)
         }
     }
 })
@@ -252,7 +269,9 @@ plugin.on('plugin.data', (payload) => {
     }
     else if (data.key.cid === 'com.eniac.example.wheel') {
       for (let key of feedbackKeys) {
-          const bg = generateRainbowCanvas(key.width, `${data.state} ${data.delta || "0"}`)
+          // Use wheel state to control rainbow offset
+          const offset = (data.state * 0.05) % 1.0
+          const bg = generateRainbowCanvas(key.width, `${data.state} ${data.delta || "0"}`, offset)
           plugin.draw(serialNumber, key, 'base64', bg)
         }
     }
@@ -297,9 +316,10 @@ setTimeout(() => {
  *
  * @param {number} width - The width of the canvas.
  * @param {number} value - The number to be drawn in the center of the canvas.
+ * @param {number} offset - The offset (0-1) to control the starting position of the rainbow gradient cycle.
  * @return {string} The PNG base64 string with MIME type.
  */
-function generateRainbowCanvas(width, value) {
+function generateRainbowCanvas(width, value, offset = 0) {
     const height = 60;
     // Create a canvas with the specified dimensions
     const canvas = createCanvas(width, height);
@@ -307,13 +327,17 @@ function generateRainbowCanvas(width, value) {
   
     // Create a linear gradient from left to right for the rainbow effect
     const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0.0, 'red');
-    gradient.addColorStop(0.16, 'orange');
-    gradient.addColorStop(0.33, 'yellow');
-    gradient.addColorStop(0.50, 'green');
-    gradient.addColorStop(0.66, 'blue');
-    gradient.addColorStop(0.83, 'indigo');
-    gradient.addColorStop(1.0, 'violet');
+    
+    // Define rainbow colors with HSL for smooth transitions
+    const hueOffset = offset * 360; // Convert offset to degrees
+    
+    // Create smooth rainbow gradient with offset
+    for (let i = 0; i <= 10; i++) {
+        const stop = i / 10;
+        const hue = (hueOffset + stop * 360) % 360;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        gradient.addColorStop(stop, color);
+    }
   
     // Fill the canvas with the rainbow gradient
     ctx.fillStyle = gradient;
@@ -341,42 +365,28 @@ function generateRainbowCanvas(width, value) {
  * @param {object} key - The key object
  */
 function dynamicKeyTest(serialNumber, key) {
+    // delete all keys
+    plugin.dynamickey.clear(serialNumber, key)
+
     setImmediate(async () => {
-        // delete all keys
-        plugin.dynamickey.clear(serialNumber, key)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        // change width to 
-        plugin.dynamickey.setWidth(serialNumber, key, 500)
-
-        // add 5 keys
-        for (let i = 0; i < 5; i++) {
-            plugin.dynamickey.add(serialNumber, key, 0, 'base64', generateRainbowCanvas(200, `${i}`), 200, {name: `Key ${i}`})
-            await new Promise(resolve => setTimeout(resolve, 100))
+        plugin.dynamickey.setWidth(serialNumber, key, 2000)
+        while (true) {
+            for (let i = 0; i < 5; i++) {
+                key.style = {
+                    width: 200,
+                    showIcon: false,
+                    showTitle: true,
+                }
+                key.title = `Key ${i}`
+                plugin.dynamickey.add(serialNumber, key, 0, 'draw', key, 200, {name: `Key ${i}`})
+                await new Promise(resolve => setTimeout(resolve, 100))
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            for (let i = 0; i < 5; i++) {
+                plugin.dynamickey.remove(serialNumber, key, 0)
+                await new Promise(resolve => setTimeout(resolve, 100))
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000))
         }
-        
-        // delete index 2
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        plugin.dynamickey.remove(serialNumber, key, 2)
-
-        // // change width to 2000px
-        // await new Promise(resolve => setTimeout(resolve, 1000))
-        // plugin.dynamickey.setWidth(serialNumber, key, 2000)
-
-        // move index 0 to index 2
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        plugin.dynamickey.move(serialNumber, key, 0, 2)
-
-        // redraw index 1
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        plugin.dynamickey.draw(serialNumber, key, 1, 'base64', generateRainbowCanvas(200, `Hello`), 100)
-        // refresh is recommended to call after width of key is changed
-        await new Promise(resolve => setTimeout(resolve, 50))
-        plugin.dynamickey.refresh(serialNumber, key)
-
-        // update user data of index 0
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        plugin.dynamickey.update(serialNumber, key, 0, {name: 'User data Updated'})
-
     })
 }
