@@ -1,16 +1,16 @@
 {
     "name": "Example",
     "uuid": "com.eniac.example",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "author": "ENIAC",
     "entry": "backend/plugin.cjs",
     "description": "Example plugin for FlexDesigner",
     "repo": "https://github.com/ENIAC-Tech/Plugin-Example",
     "sdk": {
-        "version": "1.0.0"
+        "version": "1.0.7"
     },
     "software": {
-        "minimumVersion": "1.0.0"
+        "minimumVersion": "2.0.0"
     },
     "os": [
         {
