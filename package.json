@@ -23,7 +23,6 @@
     "rollup": "^4.0.2"
   },
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.65",
-    "@eniac/flexdesigner": "^1.0.7"
+    "@eniac/flexdesigner": "^1.0.8"
   }
 }

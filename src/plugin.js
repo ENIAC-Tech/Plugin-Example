@@ -234,7 +234,7 @@ plugin.on('plugin.alive', (payload) => {
                     clearInterval(directDrawInterval)
                     directDrawInterval = null
                 }
-            }, 16)
+            }, 33)
         }
     }
 })
