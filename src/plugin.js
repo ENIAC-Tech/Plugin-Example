@@ -5,6 +5,7 @@ const { createCanvas } = require('@napi-rs/canvas');
 const keyData = {}
 var feedbackKeys = []
 var directDrawInterval = null
+const connectedSerialNumbers = []
 
 async function testAPIs()
 {
@@ -109,6 +110,12 @@ plugin.on('ui.message', async (payload) => {
         await testAPIs()
         return 'Done!'
     }
+    else if (payload.data === 'TriggerClickVibration') {
+        for (let serialNumber of connectedSerialNumbers) {
+            plugin.sendControlCommand(serialNumber, 'hapic.click')
+        }
+        return 'Done!'
+    }
     else {
         return 'Hello from plugin backend!'
     }
@@ -134,6 +141,12 @@ plugin.on('device.status', (devices) => {
     logger.info('Device status changed:', devices)
     for (let device of devices) {
         logger.info('Device status:', device)
+        if (device.status === 'disconnected') {
+            connectedSerialNumbers.splice(connectedSerialNumbers.indexOf(device.serialNumber), 1)
+        }
+        else if (device.status === 'connected') {
+            connectedSerialNumbers.push(device.serialNumber)
+        }
         if (device.status === 'connected') {
             logger.info('setDeviceConfig')
             plugin.setDeviceConfig(device.serialNumber, {

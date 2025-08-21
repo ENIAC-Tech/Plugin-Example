@@ -266,6 +266,7 @@
                     "Description": "Click the button to run tests. The results will be displayed in the box above.",
                     "TestResults": "Test Results",
                     "TestItemDescriptions": {
+                        "triggerClickVibration": "Triggers a click vibration on all connected devices.",
                         "sendToBackend": "Sends a message to the backend and receives a response.",
                         "Backend API Test": "Tests all backend APIs.",
                         "Logger Test": "Tests various logging methods (debug, info, warn, error).",

@@ -81,6 +81,10 @@ export default {
           callback: this.testSetConfig,
         },
         {
+          title: "triggerClickVibration",
+          callback: this.testTriggerClickVibration,
+        },
+        {
           title: "getAppInfo",
           callback: this.testGetAppInfo,
         },
@@ -172,6 +176,15 @@ export default {
     async testSendToBackend() {
       try {
         const result = await this.$fd.sendToBackend({ data: "Hello from UI!" });
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return `Error: ${error.message}`;
+      }
+    },
+
+    async testTriggerClickVibration() {
+      try {
+        const result = await this.$fd.sendToBackend({ data: "TriggerClickVibration" });
         return JSON.stringify(result, null, 2);
       } catch (error) {
         return `Error: ${error.message}`;
